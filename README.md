@@ -2,10 +2,10 @@
 
 ## js-data-redis
 
-Redis adapter for [js-data](http://www.js-data.io/js-data).
+Redis adapter for [js-data](http://www.js-data.io/).
 
 ## API Documentation
-[DSRedisAdapter](https://github.com/js-data/js-data/wiki/DSRedisAdapter)
+[DSRedisAdapter](http://www.js-data.io/docs/dsredisadapter)
 
 ## Project Status
 
