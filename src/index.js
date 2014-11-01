@@ -1,6 +1,6 @@
 var JSData = require('js-data');
 var redis = require('redis');
-var P = require('es6-promise').Promise;
+var P = JSData.DSUtils.Promise;
 var forOwn = require('mout/object/forOwn');
 var keys = require('mout/object/keys');
 var deepMixIn = require('mout/object/deepMixIn');

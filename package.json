@@ -1,11 +1,11 @@
 {
   "name": "js-data-redis",
   "description": "Redis adapter for js-data.",
-  "version": "0.1.0",
-  "homepage": "http://www.js-data.io/js-data-redis",
+  "version": "1.0.0-alpha.1",
+  "homepage": "http://www.js-data.io/docs/dsredisadapter",
   "repository": {
     "type": "git",
-    "url": "git://github.com/js-data/js-data-redis.git"
+    "url": "https://github.com/js-data/js-data-redis.git"
   },
   "author": {
     "name": "Jason Dobry",
@@ -32,17 +32,16 @@
     "grunt-contrib-jshint": "0.10.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-karma-coveralls": "2.5.2",
-    "grunt-mocha-test": "0.12.1",
-    "jit-grunt": "0.8.0",
-    "sinon": "1.10.3",
+    "grunt-mocha-test": "0.12.2",
+    "jit-grunt": "0.9.0",
+    "sinon": "1.11.1",
     "time-grunt": "1.0.0"
   },
   "scripts": {
     "test": "grunt test"
   },
   "dependencies": {
-    "es6-promise": "^1.0.0",
-    "js-data": "~0.4.x",
+    "js-data": "~1.0.x",
     "mout": "0.10.0",
     "redis": "^0.12.1"
   }
