@@ -1,14 +1,8 @@
 var JSData = require('js-data');
 var redis = require('redis');
 var P = JSData.DSUtils.Promise;
-var forOwn = require('mout/object/forOwn');
-var keys = require('mout/object/keys');
 var deepMixIn = require('mout/object/deepMixIn');
 var forEach = require('mout/array/forEach');
-var contains = require('mout/array/contains');
-var isObject = require('mout/lang/isObject');
-var isString = require('mout/lang/isString');
-var upperCase = require('mout/string/upperCase');
 var underscore = require('mout/string/underscore');
 var guid = require('mout/random/guid');
 var emptyStore = new JSData.DS();

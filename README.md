@@ -11,7 +11,7 @@ Redis adapter for [js-data](http://www.js-data.io/).
 
 | Branch | Master |
 | ------ | ------ |
-| NPM | [![NPM version](https://badge.fury.io/js/js-data-redis.png)](http://badge.fury.io/js/js-data-redis) |
+| NPM | [![NPM](https://nodei.co/npm/js-data-redis.png?downloads=true&stars=true)](https://nodei.co/npm/js-data-redis/) |
 | Build Status | [![Build Status](https://travis-ci.org/js-data/js-data-redis.png?branch=master)](https://travis-ci.org/js-data/js-data-redis) |
 | Code Climate | [![Code Climate](https://codeclimate.com/github/js-data/js-data-redis.png)](https://codeclimate.com/github/js-data/js-data-redis) |
 | Dependency Status | [![Dependency Status](https://gemnasium.com/js-data/js-data-redis.png)](https://gemnasium.com/js-data/js-data-redis) |

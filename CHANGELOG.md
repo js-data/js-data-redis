@@ -1,3 +1,7 @@
+##### 1.0.1 - 25 February 2015
+
+Updated dependencies
+
 ##### 1.0.0 - 03 February 2015
 
 Stable Version 1.0.0

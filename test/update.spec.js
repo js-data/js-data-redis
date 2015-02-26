@@ -1,5 +1,5 @@
 describe('DSRedisAdapter#update', function () {
-  it('should update a user in Redis', function (done) {
+  it('should update a user in Redis', function () {
     var id;
     adapter.create(User, { name: 'John' })
       .then(function (user) {
@@ -31,11 +31,10 @@ describe('DSRedisAdapter#update', function () {
         return adapter.find(User, id);
       })
       .then(function () {
-        done('Should not have reached here!');
+        throw new Error('Should not have reached here!');
       })
       .catch(function (err) {
         assert.equal(err.message, 'Not Found!');
-        done();
       });
   });
 });

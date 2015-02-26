@@ -1,7 +1,7 @@
 describe('DSRedisAdapter#updateAll', function () {
-  it('should update all items', function (done) {
+  it('should update all items', function () {
     var id, id2;
-    adapter.create(User, { name: 'John', age: 20 })
+    return adapter.create(User, { name: 'John', age: 20 })
       .then(function (user) {
         id = user.id;
         return adapter.create(User, { name: 'John', age: 30 });
@@ -40,8 +40,6 @@ describe('DSRedisAdapter#updateAll', function () {
         });
         assert.deepEqual(users, [{ id: id, name: 'Johnny', age: 20 }, { id: id2, name: 'Johnny', age: 30 }]);
         return adapter.destroyAll(User);
-      }).then(function () {
-        done();
-      }).catch(done);
+      });
   });
 });
