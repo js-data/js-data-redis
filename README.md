@@ -13,7 +13,7 @@ __Latest Release:__ [![Latest Release](https://img.shields.io/github/release/js-
 
 __Status:__
 
-[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-redis.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-redis) [![Coverage Status](https://img.shields.io/coveralls/js-data/js-data-redis/master.svg?style=flat-square)](https://coveralls.io/r/js-data/js-data-redis?branch=master) [![Codacity](https://img.shields.io/codacy/64cca2890a594370a5c9f4d5c0e3fcc3.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-redis/dashboard)
+[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-redis.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-redis) [![Codacity](https://img.shields.io/codacy/64cca2890a594370a5c9f4d5c0e3fcc3.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-redis/dashboard)
 
 __Supported Platforms:__
 
