@@ -2,7 +2,7 @@
  * js-data-redis
  * http://github.com/js-data/js-data-redis
  *
- * Copyright (c) 2014 Jason Dobry <http://www.js-data.io/js-data-redis>
+ * Copyright (c) 2014-2015 Jason Dobry <http://www.js-data.io/docs/dsredisadapter>
  * Licensed under the MIT license. <https://github.com/js-data/js-data-redis/blob/master/LICENSE>
  */
 module.exports = function (grunt) {
@@ -18,10 +18,6 @@ module.exports = function (grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: pkg,
-    jshint: {
-      all: ['Gruntfile.js', 'src/**/*.js', 'test/*.js'],
-      jshintrc: '.jshintrc'
-    },
     watch: {
       dist: {
         files: ['src/**/*.js'],
@@ -40,6 +36,36 @@ module.exports = function (grunt) {
         },
         src: ['mocha.start.js', 'test/**/*.js']
       }
+    },
+    webpack: {
+      dist: {
+        debug: true,
+        entry: './src/index.js',
+        output: {
+          filename: './dist/js-data-redis.js',
+          libraryTarget: 'commonjs2',
+          library: 'js-data-redis'
+        },
+        externals: [
+          'mout/string/underscore',
+          'mout/random/guid',
+          'js-data',
+          'js-data-schema',
+          'redis'
+        ],
+        module: {
+          loaders: [
+            { test: /(src)(.+)\.js$/, exclude: /node_modules/, loader: 'babel-loader?blacklist=useStrict' }
+          ],
+          preLoaders: [
+            {
+              test: /(src)(.+)\.js$|(test)(.+)\.js$/, // include .js files
+              exclude: /node_modules/, // exclude any and all files in the node_modules folder
+              loader: "jshint-loader?failOnHint=true"
+            }
+          ]
+        }
+      }
     }
   });
 
@@ -47,7 +73,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', ['build', 'n']);
   grunt.registerTask('build', [
-    'jshint'
+    'webpack'
   ]);
   grunt.registerTask('go', ['build', 'watch:dist']);
   grunt.registerTask('default', ['build']);

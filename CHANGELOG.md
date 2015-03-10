@@ -1,3 +1,7 @@
+##### 1.0.2 - 10 March 2015
+
+Converted to ES6.
+
 ##### 1.0.1 - 25 February 2015
 
 Updated dependencies

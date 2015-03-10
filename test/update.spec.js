@@ -1,7 +1,7 @@
 describe('DSRedisAdapter#update', function () {
   it('should update a user in Redis', function () {
     var id;
-    adapter.create(User, { name: 'John' })
+    return adapter.create(User, { name: 'John' })
       .then(function (user) {
         id = user.id;
         assert.equal(user.name, 'John');

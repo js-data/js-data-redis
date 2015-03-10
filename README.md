@@ -1,23 +1,25 @@
 <img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64" />
 
-## js-data-redis [![NPM version](https://badge.fury.io/js/js-data-redis.png)](http://badge.fury.io/js/js-data-redis)
+## js-data-redis [![npm version](https://img.shields.io/npm/v/js-data-redis.svg?style=flat-square)](https://www.npmjs.org/package/js-data-redis) [![Travis CI](https://img.shields.io/travis/js-data/js-data-redis.svg?style=flat-square)](https://travis-ci.org/js-data/js-data-redis) [![npm downloads](https://img.shields.io/npm/dm/js-data-redis.svg?style=flat-square)](https://www.npmjs.org/package/js-data-redis) [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/js-data/js-data-redis/blob/master/LICENSE)
 
 Redis adapter for [js-data](http://www.js-data.io/).
 
-## API Documentation
+### API Documentation
 [DSRedisAdapter](http://www.js-data.io/docs/dsredisadapter)
 
-## Project Status
+### Project Status
 
-| Branch | Master |
-| ------ | ------ |
-| NPM | [![NPM](https://nodei.co/npm/js-data-redis.png?downloads=true&stars=true)](https://nodei.co/npm/js-data-redis/) |
-| Build Status | [![Build Status](https://travis-ci.org/js-data/js-data-redis.png?branch=master)](https://travis-ci.org/js-data/js-data-redis) |
-| Code Climate | [![Code Climate](https://codeclimate.com/github/js-data/js-data-redis.png)](https://codeclimate.com/github/js-data/js-data-redis) |
-| Dependency Status | [![Dependency Status](https://gemnasium.com/js-data/js-data-redis.png)](https://gemnasium.com/js-data/js-data-redis) |
-| Coverage | [![Coverage Status](https://coveralls.io/repos/js-data/js-data-redis/badge.png?branch=master)](https://coveralls.io/r/js-data/js-data-redis?branch=master) |
+__Latest Release:__ [![Latest Release](https://img.shields.io/github/release/js-data/js-data-redis.svg?style=flat-square)](https://github.com/js-data/js-data-redis/releases)
 
-## Quick Start
+__Status:__
+
+[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-redis.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-redis) [![Coverage Status](https://img.shields.io/coveralls/js-data/js-data-redis/master.svg?style=flat-square)](https://coveralls.io/r/js-data/js-data-redis?branch=master) [![Codacity](https://img.shields.io/codacy/64cca2890a594370a5c9f4d5c0e3fcc3.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-redis/dashboard)
+
+__Supported Platforms:__
+
+[![node version](https://img.shields.io/badge/Node-0.10%2B-green.svg?style=flat-square)](https://github.com/js-data/js-data)
+
+### Quick Start
 `npm install --save js-data js-data-redis`.
 
 ```js
@@ -33,16 +35,16 @@ store.registerAdapter('redis', adapter, { default: true });
 // "store" will now use the Redis adapter for all async operations
 ```
 
-## Changelog
+### Changelog
 [CHANGELOG.md](https://github.com/js-data/js-data-redis/blob/master/CHANGELOG.md)
 
-## Community
+### Community
 - [Mailing List](https://groups.io/org/groupsio/jsdata) - Ask your questions!
 - [Issues](https://github.com/js-data/js-data-redis/issues) - Found a bug? Feature request? Submit an issue!
 - [GitHub](https://github.com/js-data/js-data-redis) - View the source code for js-data.
 - [Contributing Guide](https://github.com/js-data/js-data-redis/blob/master/CONTRIBUTING.md)
 
-## Contributing
+### Contributing
 
 First, feel free to contact me with questions. [Mailing List](https://groups.io/org/groupsio/jsdata). [Issues](https://github.com/js-data/js-data-redis/issues).
 
@@ -55,7 +57,7 @@ First, feel free to contact me with questions. [Mailing List](https://groups.io/
 1. Write your code, including relevant documentation and tests
 1. Submit a PR and we'll review
 
-## License
+### License
 
 The MIT License (MIT)
 
