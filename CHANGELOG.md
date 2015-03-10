@@ -1,3 +1,7 @@
+##### 1.0.3 - 10 March 2015
+
+Rebuild.
+
 ##### 1.0.2 - 10 March 2015
 
 Converted to ES6.

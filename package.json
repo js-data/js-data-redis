@@ -1,7 +1,7 @@
 {
   "name": "js-data-redis",
   "description": "Redis adapter for js-data.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "http://www.js-data.io/docs/dsredisadapter",
   "repository": {
     "type": "git",
