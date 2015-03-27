@@ -1,13 +1,11 @@
 /*
  * js-data-redis
- * http://github.com/js-data/js-data-redis
+ * https://github.com/js-data/js-data-redis
  *
  * Copyright (c) 2014-2015 Jason Dobry <http://www.js-data.io/docs/dsredisadapter>
  * Licensed under the MIT license. <https://github.com/js-data/js-data-redis/blob/master/LICENSE>
  */
 module.exports = function (grunt) {
-  'use strict';
-
   require('jit-grunt')(grunt, {
     coveralls: 'grunt-karma-coveralls'
   });
@@ -49,6 +47,7 @@ module.exports = function (grunt) {
         externals: [
           'mout/string/underscore',
           'mout/random/guid',
+          'mout/object/omit',
           'js-data',
           'js-data-schema',
           'redis'

@@ -7,7 +7,7 @@ var sinon = require('sinon');
 var DSRedisAdapter = require('./');
 var JSData = require('js-data');
 
-var adapter, store, DSUtils, DSErrors, User;
+var adapter, store, DSUtils, DSErrors, User, Post, Comment;
 
 var globals = module.exports = {
   fail: function (msg) {
@@ -34,7 +34,8 @@ var globals = module.exports = {
   TYPES_EXCEPT_FUNCTION: ['string', 123, 123.123, null, undefined, {}, [], true, false],
   assert: assert,
   sinon: sinon,
-  adapter: undefined
+  adapter: undefined,
+  store: undefined
 };
 
 var test = new mocha();
@@ -54,7 +55,56 @@ beforeEach(function () {
   adapter = new DSRedisAdapter();
   DSUtils = JSData.DSUtils;
   DSErrors = JSData.DSErrors;
-  globals.User = global.User = User = store.defineResource('user');
+  globals.User = global.User = User = store.defineResource({
+    name: 'user',
+    relations: {
+      hasMany: {
+        post: {
+          localField: 'posts',
+          foreignKey: 'userId'
+        },
+        comment: {
+          localField: 'comments',
+          foreignKey: 'userId'
+        }
+      }
+    }
+  });
+  globals.Post = global.Post = Post = store.defineResource({
+    name: 'post',
+    relations: {
+      belongsTo: {
+        user: {
+          localField: 'user',
+          localKey: 'userId'
+        }
+      },
+      hasMany: {
+        comment: {
+          localField: 'comments',
+          foreignKey: 'postId'
+        }
+      }
+    }
+  });
+  globals.Comment = global.Comment = Comment = store.defineResource({
+    name: 'comment',
+    relations: {
+      belongsTo: {
+        post: {
+          localField: 'post',
+          localKey: 'postId'
+        },
+        user: {
+          localField: 'user',
+          localKey: 'userId'
+        }
+      }
+    }
+  });
+
+  globals.store = store;
+  global.store = globals.store;
 
   globals.adapter = adapter;
   global.adapter = globals.adapter;
@@ -70,7 +120,11 @@ afterEach(function (done) {
   globals.adapter = null;
   global.adapter = null;
 
-  adapter.destroyAll(User, {}).then(function () {
+  adapter.destroyAll(User).then(function () {
+    return adapter.destroyAll(Post);
+  }).then(function () {
+    return adapter.destroyAll(Comment);
+  }).then(function () {
     done();
-  }, done);
+  }).catch(done);
 });

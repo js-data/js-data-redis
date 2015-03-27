@@ -20,4 +20,37 @@ describe('DSRedisAdapter#findAll', function () {
       assert.isFalse(!!destroyedUser);
     });
   });
+  it('should load relations', function () {
+    return store.utils.Promise.all([
+      adapter.create(User, { name: 'foo' }).then(function (user) {
+        return store.utils.Promise.all([
+          adapter.create(Post, { name: 'foo2', userId: user.id }).then(function (post) {
+            return store.utils.Promise.all([
+              adapter.create(Comment, { name: 'foo4', userId: user.id, postId: post.id }),
+              adapter.create(Comment, { name: 'bar4', userId: user.id, postId: post.id })
+            ])
+          })
+        ]);
+      }),
+      adapter.create(User, { name: 'bar' }).then(function (user) {
+        return store.utils.Promise.all([
+          adapter.create(Post, { name: 'foo3', userId: user.id }).then(function (post) {
+            return store.utils.Promise.all([
+              adapter.create(Comment, { name: 'foo5', userId: user.id, postId: post.id }),
+              adapter.create(Comment, { name: 'bar5', userId: user.id, postId: post.id })
+            ])
+          })
+        ]);
+      })
+    ]).then(function () {
+      return adapter.findAll(Post, null, { with: ['user', 'comment'] });
+    }).then(function (posts) {
+      assert.equal(posts.length, 2);
+      assert.equal(posts[0].comments.length, 2);
+      assert.equal(posts[1].comments.length, 2);
+      assert.equal(posts[0].user.id, posts[0].userId);
+      assert.equal(posts[1].user.id, posts[1].userId);
+      return adapter.destroyAll(Post);
+    });
+  });
 });

@@ -1,3 +1,13 @@
+##### 1.1.0 - 27 March 2015
+
+###### Backwards compatible API changes
+- #4 - Support loading relations in find()
+- #5 - Support loading relations in findAll()
+
+###### Backwards compatible bug fixes
+- #2 - Should not be saving relations (duplicating data)
+- #3 - Should be using removeCircular
+
 ##### 1.0.3 - 10 March 2015
 
 Rebuild.

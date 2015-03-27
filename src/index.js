@@ -1,18 +1,18 @@
-let JSData = require('js-data');
-let redis = require('redis');
-let underscore = require('mout/string/underscore');
-let guid = require('mout/random/guid');
-let P = JSData.DSUtils.Promise;
-let deepMixIn = JSData.DSUtils.deepMixIn;
-let forEach = JSData.DSUtils.forEach;
+import JSData from 'js-data';
+import redis from 'redis';
+import underscore from 'mout/string/underscore';
+import guid from 'mout/random/guid';
+import omit from 'mout/object/omit';
+let { DSUtils } = JSData;
+let { Promise: P, deepMixIn, removeCircular, forEach, contains } = DSUtils;
 let emptyStore = new JSData.DS();
 let filter = emptyStore.defaults.defaultFilter;
 
-function getPath(resourceConfig) {
+let getPath = resourceConfig => {
   if (resourceConfig) {
     return resourceConfig.table || underscore(resourceConfig.name);
   }
-}
+};
 
 class Defaults {
 
@@ -27,23 +27,22 @@ class DSRedisAdapter {
   }
 
   getIds(resourceConfig) {
-    let _this = this;
     return new P((resolve, reject) => {
-      return _this.client.SMEMBERS(getPath(resourceConfig), (err, ids) => err ? reject(err) : resolve(ids));
+      return this.client.SMEMBERS(getPath(resourceConfig), (err, ids) => err ? reject(err) : resolve(ids));
     });
   }
 
   GET(path) {
-    let _this = this;
     return new P((resolve, reject) => {
-      return _this.client.GET(path, (err, value) => err ? reject(err) : resolve(JSON.parse(value)));
+      return this.client.GET(path, (err, value) => err ? reject(err) : resolve(JSON.parse(value)));
     });
   }
 
-  find(resourceConfig, id) {
-    let _this = this;
+  find(resourceConfig, id, options) {
+    let fields = [];
     return new P((resolve, reject) => {
-      return _this.client.GET(`${getPath(resourceConfig)}-${id}`, (err, item) => {
+      options = options || {};
+      return this.client.GET(`${getPath(resourceConfig)}-${id}`, (err, item) => {
         if (err) {
           reject(err);
         } else if (!item) {
@@ -52,24 +51,129 @@ class DSRedisAdapter {
           resolve(JSON.parse(item));
         }
       });
-    });
+    }).then(instance => {
+        if (!options.with) {
+          return instance;
+        }
+        let tasks = [];
+        forEach(resourceConfig.relationList, def => {
+          let relationName = def.relation;
+          let relationDef = resourceConfig.getResource(relationName);
+          let __options = DSUtils._(relationDef, options);
+          if (contains(options.with, relationName) || contains(options.with, def.localField)) {
+            let task;
+            let params = {};
+            if (__options.allowSimpleWhere) {
+              params[def.foreignKey] = instance[resourceConfig.idAttribute];
+            } else {
+              params.where = {};
+              params.where[def.foreignKey] = {
+                '==': instance[resourceConfig.idAttribute]
+              };
+            }
+
+            if (def.type === 'hasMany' && params[def.foreignKey]) {
+              task = this.findAll(relationDef, params, omit(__options.orig(), ['with']));
+            } else if (def.type === 'hasOne') {
+              if (def.localKey && instance[def.localKey]) {
+                task = this.find(relationDef, instance[def.localKey], omit(__options.orig(), ['with']));
+              } else if (def.foreignKey && params[def.foreignKey]) {
+                task = this.findAll(relationDef, params, omit(__options.orig(), ['with'])).then(hasOnes => hasOnes.length ? hasOnes[0] : null);
+              }
+            } else if (instance[def.localKey]) {
+              task = this.find(relationDef, instance[def.localKey], omit(__options.orig(), ['with']));
+            }
+
+            if (task) {
+              tasks.push(task);
+              fields.push(def.localField);
+            }
+          }
+        });
+        if (tasks.length) {
+          return P.all(tasks).then(loadedRelations => {
+            forEach(fields, (field, index) => {
+              instance[field] = loadedRelations[index];
+            });
+            return instance;
+          });
+        }
+        return instance;
+      });
   }
 
-  findAll(resourceConfig, params) {
-    let _this = this;
-    return _this.getIds(resourceConfig).then(ids => {
+  findAll(resourceConfig, params, options) {
+    return this.getIds(resourceConfig).then(ids => {
+      options = options || {};
       let tasks = [];
       let path = getPath(resourceConfig);
-      forEach(ids, id => tasks.push(_this.GET(`${path}-${id}`)));
+      forEach(ids, id => tasks.push(this.GET(`${path}-${id}`)));
       return P.all(tasks);
-    }).then(items => filter.call(emptyStore, items, resourceConfig.name, params, { allowSimpleWhere: true }));
+    })
+      .then(items => filter.call(emptyStore, items, resourceConfig.name, params, { allowSimpleWhere: true }))
+      .then(items => {
+        if (!options.with) {
+          return items;
+        }
+        let topTasks = [];
+        forEach(items, instance => {
+          let tasks = [];
+          let fields = [];
+          forEach(resourceConfig.relationList, def => {
+            let relationName = def.relation;
+            let relationDef = resourceConfig.getResource(relationName);
+            let __options = DSUtils._(relationDef, options);
+            if (contains(options.with, relationName) || contains(options.with, def.localField)) {
+              let task;
+              let params = {};
+              if (__options.allowSimpleWhere) {
+                params[def.foreignKey] = instance[resourceConfig.idAttribute];
+              } else {
+                params.where = {};
+                params.where[def.foreignKey] = {
+                  '==': instance[resourceConfig.idAttribute]
+                };
+              }
+
+              if (def.type === 'hasMany' && params[def.foreignKey]) {
+                task = this.findAll(relationDef, params, omit(__options.orig(), ['with']));
+              } else if (def.type === 'hasOne') {
+                if (def.localKey && instance[def.localKey]) {
+                  task = this.find(relationDef, instance[def.localKey], omit(__options.orig(), ['with']));
+                } else if (def.foreignKey && params[def.foreignKey]) {
+                  task = this.findAll(relationDef, params, omit(__options.orig(), ['with'])).then(hasOnes => hasOnes.length ? hasOnes[0] : null);
+                }
+              } else if (instance[def.localKey]) {
+                task = this.find(relationDef, instance[def.localKey], omit(__options.orig(), ['with']));
+              }
+
+              if (task) {
+                tasks.push(task);
+                fields.push(def.localField);
+              }
+            }
+          });
+          if (tasks.length) {
+            topTasks.push(P.all(tasks).then(loadedRelations => {
+              forEach(fields, (field, index) => {
+                instance[field] = loadedRelations[index];
+              });
+              return instance;
+            }));
+          }
+        });
+        if (topTasks.length) {
+          return P.all(topTasks);
+        }
+        return items;
+      });
   }
 
   create(resourceConfig, attrs) {
-    let _this = this;
     return new P((resolve, reject) => {
+      attrs = removeCircular(omit(attrs, resourceConfig.relationFields || []));
       attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || guid();
-      return _this.client
+      return this.client
         .multi()
         .SET(`${getPath(resourceConfig)}-${attrs[resourceConfig.idAttribute]}`, JSON.stringify(attrs))
         .SADD(getPath(resourceConfig), attrs[resourceConfig.idAttribute])
@@ -78,10 +182,10 @@ class DSRedisAdapter {
   }
 
   update(resourceConfig, id, attrs) {
-    let _this = this;
     return new P((resolve, reject) => {
+      attrs = removeCircular(omit(attrs, resourceConfig.relationFields || []));
       let path = `${getPath(resourceConfig)}-${id}`;
-      return _this.client.GET(path, (err, value) => {
+      return this.client.GET(path, (err, value) => {
         if (err) {
           reject(err);
         } else if (!value) {
@@ -89,26 +193,24 @@ class DSRedisAdapter {
         } else {
           value = JSON.parse(value);
           deepMixIn(value, attrs);
-          _this.client.SET(path, JSON.stringify(value), err => err ? reject(err) : resolve(value));
+          this.client.SET(path, JSON.stringify(value), err => err ? reject(err) : resolve(value));
         }
       });
     });
   }
 
   updateAll(resourceConfig, attrs, params) {
-    let _this = this;
-    return _this.findAll(resourceConfig, params).then(items => {
+    return this.findAll(resourceConfig, params).then(items => {
       let tasks = [];
-      forEach(items, item => tasks.push(_this.update(resourceConfig, item[resourceConfig.idAttribute], attrs)));
+      forEach(items, item => tasks.push(this.update(resourceConfig, item[resourceConfig.idAttribute], attrs)));
       return P.all(tasks);
     });
   }
 
   destroy(resourceConfig, id) {
-    let _this = this;
     return new P((resolve, reject) => {
       let path = getPath(resourceConfig);
-      return _this.client
+      return this.client
         .multi()
         .DEL(`${path}-${id}`)
         .SREM(path, id)
@@ -117,10 +219,9 @@ class DSRedisAdapter {
   }
 
   destroyAll(resourceConfig, params) {
-    let _this = this;
-    return _this.findAll(resourceConfig, params).then(items => {
+    return this.findAll(resourceConfig, params).then(items => {
       let tasks = [];
-      forEach(items, item => tasks.push(_this.destroy(resourceConfig, item[resourceConfig.idAttribute])));
+      forEach(items, item => tasks.push(this.destroy(resourceConfig, item[resourceConfig.idAttribute])));
       return P.all(tasks);
     });
   }
