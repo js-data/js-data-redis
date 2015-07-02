@@ -39,6 +39,8 @@ store.registerAdapter('redis', adapter, { default: true });
 [CHANGELOG.md](https://github.com/js-data/js-data-redis/blob/master/CHANGELOG.md)
 
 ### Community
+- [Gitter Channel](https://gitter.im/js-data/js-data) - Better than IRC!
+- [Announcements](http://www.js-data.io/blog)
 - [Mailing List](https://groups.io/org/groupsio/jsdata) - Ask your questions!
 - [Issues](https://github.com/js-data/js-data-redis/issues) - Found a bug? Feature request? Submit an issue!
 - [GitHub](https://github.com/js-data/js-data-redis) - View the source code for js-data.

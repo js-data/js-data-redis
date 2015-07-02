@@ -1,3 +1,5 @@
+var Promise = require('bluebird');
+
 describe('DSRedisAdapter#find', function () {
   it('should find a user in Redis', function () {
     var id, id2, _user, _post, _comments;

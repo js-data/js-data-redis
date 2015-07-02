@@ -1,3 +1,7 @@
+##### 2.0.0 - 02 July 2015
+
+Stable Version 2.0.0
+
 ##### 1.1.0 - 27 March 2015
 
 ###### Backwards compatible API changes

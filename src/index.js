@@ -1,10 +1,9 @@
-import JSData from 'js-data';
-import redis from 'redis';
-import underscore from 'mout/string/underscore';
-import guid from 'mout/random/guid';
-import omit from 'mout/object/omit';
+let JSData = require('js-data');
+let redis = require('redis');
+let underscore = require('mout/string/underscore');
+let guid = require('mout/random/guid');
 let { DSUtils } = JSData;
-let { Promise: P, deepMixIn, removeCircular, forEach, contains } = DSUtils;
+let { deepMixIn, removeCircular, forEach, contains, omit } = DSUtils;
 let emptyStore = new JSData.DS();
 let filter = emptyStore.defaults.defaultFilter;
 
@@ -27,20 +26,20 @@ class DSRedisAdapter {
   }
 
   getIds(resourceConfig) {
-    return new P((resolve, reject) => {
+    return new DSUtils.Promise((resolve, reject) => {
       return this.client.SMEMBERS(getPath(resourceConfig), (err, ids) => err ? reject(err) : resolve(ids));
     });
   }
 
   GET(path) {
-    return new P((resolve, reject) => {
+    return new DSUtils.Promise((resolve, reject) => {
       return this.client.GET(path, (err, value) => err ? reject(err) : resolve(JSON.parse(value)));
     });
   }
 
   find(resourceConfig, id, options) {
     let fields = [];
-    return new P((resolve, reject) => {
+    return new DSUtils.Promise((resolve, reject) => {
       options = options || {};
       return this.client.GET(`${getPath(resourceConfig)}-${id}`, (err, item) => {
         if (err) {
@@ -91,7 +90,7 @@ class DSRedisAdapter {
           }
         });
         if (tasks.length) {
-          return P.all(tasks).then(loadedRelations => {
+          return DSUtils.Promise.all(tasks).then(loadedRelations => {
             forEach(fields, (field, index) => {
               instance[field] = loadedRelations[index];
             });
@@ -108,7 +107,7 @@ class DSRedisAdapter {
       let tasks = [];
       let path = getPath(resourceConfig);
       forEach(ids, id => tasks.push(this.GET(`${path}-${id}`)));
-      return P.all(tasks);
+      return DSUtils.Promise.all(tasks);
     })
       .then(items => filter.call(emptyStore, items, resourceConfig.name, params, { allowSimpleWhere: true }))
       .then(items => {
@@ -154,7 +153,7 @@ class DSRedisAdapter {
             }
           });
           if (tasks.length) {
-            topTasks.push(P.all(tasks).then(loadedRelations => {
+            topTasks.push(DSUtils.Promise.all(tasks).then(loadedRelations => {
               forEach(fields, (field, index) => {
                 instance[field] = loadedRelations[index];
               });
@@ -163,14 +162,14 @@ class DSRedisAdapter {
           }
         });
         if (topTasks.length) {
-          return P.all(topTasks);
+          return DSUtils.Promise.all(topTasks);
         }
         return items;
       });
   }
 
   create(resourceConfig, attrs) {
-    return new P((resolve, reject) => {
+    return new DSUtils.Promise((resolve, reject) => {
       attrs = removeCircular(omit(attrs, resourceConfig.relationFields || []));
       attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || guid();
       return this.client
@@ -182,7 +181,7 @@ class DSRedisAdapter {
   }
 
   update(resourceConfig, id, attrs) {
-    return new P((resolve, reject) => {
+    return new DSUtils.Promise((resolve, reject) => {
       attrs = removeCircular(omit(attrs, resourceConfig.relationFields || []));
       let path = `${getPath(resourceConfig)}-${id}`;
       return this.client.GET(path, (err, value) => {
@@ -203,12 +202,12 @@ class DSRedisAdapter {
     return this.findAll(resourceConfig, params).then(items => {
       let tasks = [];
       forEach(items, item => tasks.push(this.update(resourceConfig, item[resourceConfig.idAttribute], attrs)));
-      return P.all(tasks);
+      return DSUtils.Promise.all(tasks);
     });
   }
 
   destroy(resourceConfig, id) {
-    return new P((resolve, reject) => {
+    return new DSUtils.Promise((resolve, reject) => {
       let path = getPath(resourceConfig);
       return this.client
         .multi()
@@ -222,7 +221,7 @@ class DSRedisAdapter {
     return this.findAll(resourceConfig, params).then(items => {
       let tasks = [];
       forEach(items, item => tasks.push(this.destroy(resourceConfig, item[resourceConfig.idAttribute])));
-      return P.all(tasks);
+      return DSUtils.Promise.all(tasks);
     });
   }
 }

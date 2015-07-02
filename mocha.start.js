@@ -6,6 +6,7 @@ var mocha = require('mocha');
 var sinon = require('sinon');
 var DSRedisAdapter = require('./');
 var JSData = require('js-data');
+JSData.DSUtils.Promise = require('bluebird');
 
 var adapter, store, DSUtils, DSErrors, User, Post, Comment;
 
