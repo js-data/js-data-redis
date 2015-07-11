@@ -47,6 +47,8 @@ module.exports = function (grunt) {
         externals: [
           'mout/string/underscore',
           'mout/random/guid',
+          'mout/array/map',
+          'mout/array/unique',
           'js-data',
           'redis'
         ],

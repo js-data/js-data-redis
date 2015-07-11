@@ -1,7 +1,7 @@
 {
   "name": "js-data-redis",
   "description": "Redis adapter for js-data.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "homepage": "http://www.js-data.io/docs/dsredisadapter",
   "repository": {
     "type": "git",
@@ -11,12 +11,7 @@
     "name": "Jason Dobry",
     "email": "jason.dobry@gmail.com"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/js-data/js-data-redis/blob/master/LICENSE"
-    }
-  ],
+  "license": "MIT",
   "main": "./dist/js-data-redis.js",
   "keywords": [
     "data",
@@ -27,9 +22,9 @@
     "redis"
   ],
   "devDependencies": {
-    "babel-core": "5.6.15",
-    "babel-loader": "5.2.2",
-    "bluebird": "2.9.30",
+    "babel-core": "5.6.17",
+    "babel-loader": "5.3.1",
+    "bluebird": "2.9.33",
     "chai": "3.0.0",
     "grunt": "0.4.5",
     "grunt-contrib-watch": "0.6.1",

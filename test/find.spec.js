@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 describe('DSRedisAdapter#find', function () {
   it('should find a user in Redis', function () {
     var id, id2, _user, _post, _comments;
-    return adapter.create(User, { name: 'John' })
+    return adapter.create(User, {name: 'John'})
       .then(function (user) {
         _user = user;
         id = user.id;
@@ -14,7 +14,7 @@ describe('DSRedisAdapter#find', function () {
       .then(function (user) {
         assert.equal(user.name, 'John');
         assert.isString(user.id);
-        assert.deepEqual(user, { id: id, name: 'John' });
+        assert.equalObjects(user, {id: id, name: 'John'});
         return adapter.create(Post, {
           content: 'test',
           userId: user.id
@@ -44,14 +44,14 @@ describe('DSRedisAdapter#find', function () {
         _comments.sort(function (a, b) {
           return a.content > b.content;
         });
-        return adapter.find(Post, _post.id, { with: ['user', 'comment'] });
+        return adapter.find(Post, _post.id, {'with': ['user', 'comment']});
       })
       .then(function (post) {
         post.comments.sort(function (a, b) {
           return a.content > b.content;
         });
-        assert.equal(JSON.stringify(post.user), JSON.stringify(_user));
-        assert.equal(JSON.stringify(post.comments), JSON.stringify(_comments));
+        assert.equalObjects(post.user, _user);
+        assert.equalObjects(post.comments, _comments);
         return adapter.destroy(User, id);
       })
       .then(function (user) {
