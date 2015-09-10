@@ -4,7 +4,8 @@ node_js:
 services:
   - redis-server
 before_install:
-  - npm install -g grunt-cli npm
+  - npm install -g npm
+  - npm install -g grunt-cli
 script:
   - grunt test
   - grunt coveralls || true
