@@ -13,7 +13,7 @@ __Latest Release:__ [![Latest Release](https://img.shields.io/github/release/js-
 
 __Status:__
 
-[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-redis.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-redis) [![Codacity](https://img.shields.io/codacy/64cca2890a594370a5c9f4d5c0e3fcc3.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-redis/dashboard)
+[![Codacity](https://img.shields.io/codacy/64cca2890a594370a5c9f4d5c0e3fcc3.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-redis/dashboard)
 
 __Supported Platforms:__
 
@@ -28,7 +28,10 @@ var DSRedisAdapter = require('js-data-redis');
 
 var store = new JSData.DS();
 
-var adapter = new DSRedisAdapter();
+var adapter = new DSRedisAdapter({
+  host: 'my.domain.com',
+  port: 3333
+});
 
 store.registerAdapter('redis', adapter, { default: true });
 
@@ -48,7 +51,7 @@ store.registerAdapter('redis', adapter, { default: true });
 
 ### Contributing
 
-First, support is handled via the [Mailing List](https://groups.io/org/groupsio/jsdata). Ask your questions there.
+First, support is handled via the [Gitter Channel](https://gitter.im/js-data/js-data) and the [Mailing List](https://groups.io/org/groupsio/jsdata). Ask your questions there.
 
 When submitting issues on GitHub, please include as much detail as possible to make debugging quick and easy.
 
@@ -58,16 +61,18 @@ When submitting issues on GitHub, please include as much detail as possible to m
 
 [Github Issues](https://github.com/js-data/js-data-redis/issues).
 
-#### Pull Requests
+#### Submitting Pull Requests
 
-1. Contribute to the issue that is the reason you'll be developing in the first place
+1. Contribute to the issue/discussion that is the reason you'll be developing in the first place
 1. Fork js-data-redis
-1. `git clone https://github.com/<you>/js-data-redis.git`
+1. `git clone git@github.com:<you>/js-data-redis.git`
 1. `cd js-data-redis; npm install; bower install;`
-1. `grunt go` (builds and starts a watch)
-1. (in another terminal) `grunt karma:dev` (runs the tests)
 1. Write your code, including relevant documentation and tests
-1. Submit a PR and we'll review
+1. Run `grunt test` (build and test)
+1. Your code will be linted and checked for formatting, the tests will be run
+1. The `dist/` folder & files will be generated, do NOT commit `dist/*`! They will be committed when a release is cut.
+1. Submit your PR and we'll review!
+1. Thanks!
 
 ### License
 

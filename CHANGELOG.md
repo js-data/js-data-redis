@@ -1,3 +1,8 @@
+##### 2.2.0 - 09 September 2015
+
+###### Backwards compatible API changes
+- #8 - Added support for changing host and port
+
 ##### 2.1.0 - 10 July 2015
 
 ###### Backwards compatible API changes

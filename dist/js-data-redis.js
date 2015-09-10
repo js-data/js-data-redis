@@ -66,11 +66,11 @@ module.exports =
 	var emptyStore = new JSData.DS();
 	var filter = emptyStore.defaults.defaultFilter;
 
-	var getPath = function getPath(resourceConfig) {
+	function getPath(resourceConfig) {
 	  if (resourceConfig) {
 	    return resourceConfig.table || underscore(resourceConfig.name);
 	  }
-	};
+	}
 
 	var Defaults = function Defaults() {
 	  _classCallCheck(this, Defaults);
@@ -81,9 +81,15 @@ module.exports =
 	    _classCallCheck(this, DSRedisAdapter);
 
 	    options = options || {};
+
+	    var host = options.hasOwnProperty('host') ? options.host : '127.0.0.1';
+	    delete options.host;
+	    var port = options.hasOwnProperty('port') ? options.port : 6379;
+	    delete options.port;
+
 	    this.defaults = new Defaults();
 	    DSUtils.deepMixIn(this.defaults, options);
-	    this.client = redis.createClient(this.defaults);
+	    this.client = redis.createClient(port, host, this.defaults);
 	  }
 
 	  _createClass(DSRedisAdapter, [{
@@ -417,37 +423,37 @@ module.exports =
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = require("js-data");
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = require("redis");
 
 /***/ },
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = require("mout/array/map");
 
 /***/ },
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = require("mout/array/unique");
 
 /***/ },
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = require("mout/string/underscore");
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = require("mout/random/guid");
 
