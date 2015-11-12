@@ -6,3 +6,6 @@ node_js:
   - "0.10"
 services:
   - redis-server
+before_install:
+  - npm install -g npm
+  - npm install redis js-data
