@@ -309,4 +309,4 @@ class DSRedisAdapter {
   }
 }
 
-export default DSRedisAdapter
+module.exports = DSRedisAdapter

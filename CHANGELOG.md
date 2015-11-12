@@ -1,3 +1,10 @@
+##### 2.3.0 - 11 November 2015
+
+###### Other
+- Rebuilt with Babel 6
+- Dropped Grunt
+- Integrated js-data-adapter-tests
+
 ##### 2.2.0 - 09 September 2015
 
 ###### Backwards compatible API changes
