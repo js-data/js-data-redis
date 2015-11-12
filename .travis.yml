@@ -9,3 +9,4 @@ services:
 before_install:
   - npm install -g npm
   - npm install redis js-data
+script: npm run ci
