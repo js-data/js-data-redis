@@ -1,16 +1,13 @@
 {
   "name": "js-data-redis",
   "description": "Redis adapter for js-data.",
-  "version": "2.3.0",
-  "homepage": "http://www.js-data.io/docs/dsredisadapter",
+  "version": "3.0.0-alpha.1",
+  "homepage": "https://github.com/js-data/js-data-redis",
   "repository": {
     "type": "git",
     "url": "https://github.com/js-data/js-data-redis.git"
   },
-  "author": {
-    "name": "Jason Dobry",
-    "email": "jason.dobry@gmail.com"
-  },
+  "author": "js-data-redis project authors",
   "license": "MIT",
   "main": "./dist/js-data-redis.js",
   "keywords": [
@@ -21,35 +18,57 @@
     "adapter",
     "redis"
   ],
-  "devDependencies": {
-    "babel-core": "6.1.4",
-    "babel-eslint": "4.1.5",
-    "babel-loader": "6.1.0",
-    "babel-preset-es2015": "6.1.2",
-    "bluebird": "3.0.5",
-    "co-mocha": "1.1.2",
-    "codacy-coverage": "1.1.3",
-    "coveralls": "2.11.4",
-    "istanbul": "0.4.0",
-    "js-data-adapter-tests": "~1.x",
-    "mocha": "2.3.3",
-    "mout": "0.11.1",
-    "standard": "5.3.1",
-    "webpack": "1.12.4"
-  },
   "scripts": {
-    "lint": "standard src/index.js",
-    "build": "webpack --config webpack.config.js --progress --colors",
-    "mocha": "mocha --timeout 20000 --reporter dot mocha.start.js",
-    "cover": "istanbul cover --hook-run-in-context node_modules/mocha/bin/_mocha -- --timeout 20000 --reporter dot mocha.start.js",
-    "test": "npm run lint && npm run build && npm run cover",
+    "lint": "repo-tools lint src/index.js mocha.start.js test/**/*.js scripts/**.js rollup.config.js",
+    "bundle": "rollup -c rollup.config.js -f cjs -o dist/js-data-redis.js -m dist/js-data-redis.js.map src/index.js",
+    "doc": "jsdoc -c conf.json src node_modules/js-data-adapter/src && node scripts/cleanup.js",
+    "watch": "watch \"npm run bundle\" src/",
+    "build": "npm run lint && npm run bundle",
+    "mocha": "mocha -t 30000 -R dot -r source-map-support/register mocha.start.js",
+    "cover": "istanbul cover --hook-run-in-context node_modules/mocha/bin/_mocha -- -t 30000 -R dot -r source-map-support/register mocha.start.js",
+    "test": "npm run build && npm run cover",
+    "repo-tools": "repo-tools updates && repo-tools changelog && repo-tools authors",
+    "release": "npm test && npm run doc && npm run repo-tools",
     "ci": "npm run test && cat coverage/lcov.info | coveralls || true && cat ./coverage/lcov.info | codacy-coverage || true"
   },
   "standard": {
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "globals": [
+      "describe",
+      "it",
+      "sinon",
+      "assert",
+      "before",
+      "after",
+      "beforeEach",
+      "afterEach"
+    ]
+  },
+  "dependencies": {
+    "js-data-adapter": "0.1.4",
+    "mout": "0.12.0"
   },
   "peerDependencies": {
-    "js-data": "~2.x",
+    "js-data": "^3.0.0-alpha.16",
     "redis": ">=0.12.1"
+  },
+  "devDependencies": {
+    "babel-core": "6.7.0",
+    "babel-polyfill": "6.6.1",
+    "babel-preset-es2015-rollup": "1.1.1",
+    "chai": "3.5.0",
+    "codacy-coverage": "1.1.3",
+    "coveralls": "2.11.8",
+    "ink-docstrap": "1.1.4",
+    "istanbul": "0.4.2",
+    "js-data-adapter-tests": "^2.0.0-alpha.14",
+    "js-data-repo-tools": "0.2.0",
+    "jsdoc": "3.4.0",
+    "mocha": "2.4.5",
+    "rollup": "0.25.4",
+    "rollup-plugin-babel": "2.4.0",
+    "sinon": "1.17.3",
+    "source-map-support": "0.4.0",
+    "watch": "0.17.1"
   }
 }

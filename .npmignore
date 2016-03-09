@@ -33,4 +33,5 @@ coverage/
 src/
 test/
 mocha.start.js
-webpack.config.js
+rollup.config.js
+doc/
