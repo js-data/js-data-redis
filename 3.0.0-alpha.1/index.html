@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>js-data-redis Index</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.dark.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.lumen.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top ">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">js-data-redis</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Adapter.html">Adapter</a></li><li><a href="RedisAdapter.html">RedisAdapter</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="global.html">Global</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	
+	
+
+
+
+    <h3>js-data-redis 3.0.0-alpha.1</h3>
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+    <section class="readme-section">
+        <article><p><img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64" /></p>
+<h2>js-data-redis <a href="http://slack.js-data.io"><img src="http://slack.js-data.io/badge.svg" alt="Slack Status"></a> <a href="https://www.npmjs.org/package/js-data-redis"><img src="https://img.shields.io/npm/v/js-data-redis.svg?style=flat" alt="npm version"></a> <a href="https://travis-ci.org/js-data/js-data-redis"><img src="https://img.shields.io/travis/js-data/js-data-redis.svg" alt="Travis CI"></a> <a href="https://www.npmjs.org/package/js-data-redis"><img src="https://img.shields.io/npm/dm/js-data-redis.svg?style=flat" alt="npm downloads"></a> <a href="https://coveralls.io/github/js-data/js-data-redis?branch=master"><img src="https://img.shields.io/coveralls/js-data/js-data-redis/master.svg?style=flat" alt="Coverage Status"></a> <a href="https://www.codacy.com/app/jasondobry/js-data-redis/dashboard"><img src="https://img.shields.io/codacy/64cca2890a594370a5c9f4d5c0e3fcc3.svg" alt="Codacy"></a></h2><p>Redis adapter for <a href="http://www.js-data.io/">js-data</a>.</p>
+<h3>API Documentation</h3><p><a href="http://www.js-data.io/docs/dsredisadapter">DSRedisAdapter</a></p>
+<h3>Quick Start</h3><p><code>npm install --save js-data js-data-redis redis</code>.</p>
+<pre class="prettyprint source lang-js"><code>var JSData = require('js-data');
+var DSRedisAdapter = require('js-data-redis');
+
+var store = new JSData.DS();
+
+var adapter = new DSRedisAdapter({
+  host: 'my.domain.com',
+  port: 3333
+});
+
+store.registerAdapter('redis', adapter, { default: true });
+
+// &quot;store&quot; will now use the Redis adapter for all async operations</code></pre><p>Read about using <a href="http://www.js-data.io/docs/jsdata-on-the-server">JSData on the Server</a>.</p>
+<h3>Changelog</h3><p><a href="https://github.com/js-data/js-data-redis/blob/master/CHANGELOG.md">CHANGELOG.md</a></p>
+<h3>Community</h3><ul>
+<li><a href="http://slack.js-data.io">Slack Channel</a> - Better than IRC!</li>
+<li><a href="http://www.js-data.io/blog">Announcements</a></li>
+<li><a href="https://groups.io/org/groupsio/jsdata">Mailing List</a> - Ask your questions!</li>
+<li><a href="https://github.com/js-data/js-data-redis/issues">Issues</a> - Found a bug? Feature request? Submit an issue!</li>
+<li><a href="https://github.com/js-data/js-data-redis">GitHub</a> - View the source code for js-data.</li>
+<li><a href="https://github.com/js-data/js-data-redis/blob/master/CONTRIBUTING.md">Contributing Guide</a></li>
+</ul>
+<h3>Contributing</h3><p>First, support is handled via the <a href="http://slack.js-data.io">Slack Channel</a> and
+the <a href="https://groups.io/org/groupsio/jsdata">Mailing List</a>. Ask your questions
+there.</p>
+<p>When submitting issues on GitHub, please include as much detail as possible to
+make debugging quick and easy.</p>
+<ul>
+<li>good - Your versions of js-data, js-data-redis, etc., relevant console
+logs/error, code examples that revealed the issue</li>
+<li>better - A <a href="http://plnkr.co/">plnkr</a>, <a href="http://jsfiddle.net/">fiddle</a>, or
+<a href="http://jsbin.com/?html,output">bin</a> that demonstrates the issue</li>
+<li>best - A Pull Request that fixes the issue, including test coverage for the
+issue and the fix</li>
+</ul>
+<p><a href="https://github.com/js-data/js-data-redis/issues">Github Issues</a>.</p>
+<h4>Submitting Pull Requests</h4><ol>
+<li>Contribute to the issue/discussion that is the reason you'll be developing in
+the first place</li>
+<li>Fork js-data-redis</li>
+<li><code>git clone git@github.com:&lt;you&gt;/js-data-redis.git</code></li>
+<li><code>cd js-data-redis; npm install;</code></li>
+<li>Write your code, including relevant documentation and tests</li>
+<li>Run <code>npm test</code> (build and test)<ul>
+<li>You need io.js or Node 4.x that includes generator support without a flag</li>
+</ul>
+</li>
+<li>Your code will be linted and checked for formatting, the tests will be run</li>
+<li>The <code>dist/</code> folder &amp; files will be generated, do NOT commit <code>dist/*</code>! They
+will be committed when a release is cut.</li>
+<li>Submit your PR and we'll review!</li>
+<li>Thanks!</li>
+</ol>
+<h4>Have write access?</h4><p>Here's how to make a release on the <code>master</code> branch:</p>
+<ol>
+<li>Bump <code>package.json</code> to the appropriate version.</li>
+<li><code>npm test</code> must succeed.</li>
+<li>This time, the built <code>dist/js-data-redis.js</code> file <em>will</em> be committed, so stage its changes.</li>
+<li>Mention the release version in the commit message, e.g. <code>Stable Version 1.2.3</code></li>
+<li>Push to master.</li>
+<li>Create a git tag. Name it the version of the release, e.g. <code>1.2.3</code><ul>
+<li>Easiest way is to just create a GitHub Release, which will create the tag for you. Name the Release and the git tag the same thing.</li>
+</ul>
+</li>
+<li><code>git fetch origin</code> if you tagged it via GitHub Release, so you can get the tag on your local machine.</li>
+<li><code>npm publish .</code> (Make sure you got the version bumped correctly!)</li>
+</ol>
+<h3>License</h3><p>The MIT License (MIT)</p>
+<p>Copyright (c) 2014-2015 Jason Dobry</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p></article>
+    </section>
+
+
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+	<div style="text-align:center">Back to <a href="http://api.js-data.io">api.js-data.io</a></div>
+
+
+	<span class="copyright">
+	js-data-redis Copyright © 2014-2016 js-data-redis project authors
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on 2016-03-08T23:00:13-08:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+<script>
+	(function ( i, s, o, g, r, a, m ) {
+		i['GoogleAnalyticsObject'] = r;
+		i[r] = i[r] || function () {
+			(i[r].q = i[r].q || []).push( arguments )
+		}, i[r].l = 1 * new Date();
+		a = s.createElement( o ),
+			m = s.getElementsByTagName( o )[0];
+		a.async = 1;
+		a.src = g;
+		m.parentNode.insertBefore( a, m )
+	})( window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga' );
+
+	ga( 'create', 'UA-55528236-2', 'api.js-data.io' );
+	ga( 'send', 'pageview' );
+</script>
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
