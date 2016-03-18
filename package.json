@@ -1,7 +1,7 @@
 {
   "name": "js-data-redis",
   "description": "Redis adapter for js-data.",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.3",
   "homepage": "https://github.com/js-data/js-data-redis",
   "repository": {
     "type": "git",
@@ -45,22 +45,22 @@
     ]
   },
   "dependencies": {
-    "js-data-adapter": "0.2.0",
+    "js-data-adapter": "0.2.4",
     "mout": "0.12.0"
   },
   "peerDependencies": {
-    "js-data": "^3.0.0-alpha.16",
+    "js-data": "^3.0.0-alpha.19",
     "redis": ">=0.12.1"
   },
   "devDependencies": {
-    "babel-core": "6.7.0",
-    "babel-polyfill": "6.6.1",
+    "babel-core": "6.7.2",
+    "babel-polyfill": "6.7.2",
     "babel-preset-es2015-rollup": "1.1.1",
     "chai": "3.5.0",
     "coveralls": "2.11.8",
     "ink-docstrap": "1.1.4",
     "istanbul": "0.4.2",
-    "js-data-adapter-tests": "^2.0.0-alpha.14",
+    "js-data-adapter-tests": "^2.0.0-alpha.16",
     "js-data-repo-tools": "0.2.0",
     "jsdoc": "3.4.0",
     "mocha": "2.4.5",

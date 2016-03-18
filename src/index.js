@@ -7,20 +7,6 @@ import Adapter from 'js-data-adapter'
 import underscore from 'mout/string/underscore'
 import guid from 'mout/random/guid'
 
-const {
-  addHiddenPropsToTarget,
-  classCallCheck,
-  deepMixIn,
-  extend,
-  fillIn,
-  get,
-  isArray,
-  isObject,
-  isUndefined,
-  plainCopy,
-  set
-} = utils
-
 function getPath (mapper) {
   if (mapper) {
     return mapper.table || underscore(mapper.name)
@@ -75,9 +61,9 @@ const DEFAULTS = {
  */
 function RedisAdapter (opts) {
   const self = this
-  classCallCheck(self, RedisAdapter)
+  utils.classCallCheck(self, RedisAdapter)
   opts || (opts = {})
-  fillIn(opts, DEFAULTS)
+  utils.fillIn(opts, DEFAULTS)
   Adapter.call(self, opts)
 
   /**
@@ -116,9 +102,9 @@ Object.defineProperty(RedisAdapter, '__super__', {
  * properties to the RedisAdapter itself.
  * @return {Object} RedisAdapter of `RedisAdapter`.
  */
-RedisAdapter.extend = extend
+RedisAdapter.extend = utils.extend
 
-addHiddenPropsToTarget(RedisAdapter.prototype, {
+utils.addHiddenPropsToTarget(RedisAdapter.prototype, {
   getIds (mapper) {
     const self = this
     return new Promise(function (resolve, reject) {
@@ -137,8 +123,16 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     const self = this
     return new Promise(function (resolve, reject) {
       return self.client.GET(path, function (err, value) {
-        return err ? reject(err) : resolve(isUndefined(value) ? value : JSON.parse(value))
+        return err ? reject(err) : resolve(utils.isUndefined(value) ? value : JSON.parse(value))
       })
+    })
+  },
+
+  _count (mapper, query) {
+    const self = this
+    return self._findAll(mapper, query).then(function (result) {
+      result[0] = result[0].length
+      return result
     })
   },
 
@@ -146,19 +140,19 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     const self = this
     const idAttribute = mapper.idAttribute
     props || (props = {})
-    props = plainCopy(props)
+    props = utils.plainCopy(props)
 
-    let id = get(props, idAttribute)
-    if (isUndefined(id)) {
+    let id = utils.get(props, idAttribute)
+    if (utils.isUndefined(id)) {
       id = guid()
-      set(props, idAttribute, id)
+      utils.set(props, idAttribute, id)
     }
 
     return new Promise(function (resolve, reject) {
       props = JSON.stringify(props)
       return self.client
         .multi()
-        .SET(`${getPath(mapper)}-${id}`, props)
+        .set(`${getPath(mapper)}-${id}`, props)
         .SADD(getPath(mapper), id)
         .exec(function (err) {
           return err ? reject(err) : resolve([JSON.parse(props), {}])
@@ -170,20 +164,20 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     const self = this
     const idAttribute = mapper.idAttribute
     props || (props = [])
-    props = plainCopy(props)
+    props = utils.plainCopy(props)
 
     const _path = getPath(mapper)
     return Promise.all(props.map(function (_props) {
       return new Promise(function (resolve, reject) {
-        let id = get(_props, idAttribute)
-        if (isUndefined(id)) {
+        let id = utils.get(_props, idAttribute)
+        if (utils.isUndefined(id)) {
           id = guid()
-          set(_props, idAttribute, id)
+          utils.set(_props, idAttribute, id)
         }
         _props = JSON.stringify(_props)
         return self.client
           .multi()
-          .SET(`${_path}-${id}`, _props)
+          .set(`${_path}-${id}`, _props)
           .SADD(_path, id)
           .exec(function (err) {
             return err ? reject(err) : resolve(JSON.parse(_props))
@@ -216,7 +210,7 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
       const idAttribute = mapper.idAttribute
       return Promise.all(records.map(function (record) {
         return new Promise(function (resolve, reject) {
-          const id = get(record, idAttribute)
+          const id = utils.get(record, idAttribute)
           return self.client
             .multi()
             .DEL(`${_path}-${id}`)
@@ -258,17 +252,29 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     })
   },
 
+  _sum (mapper, field, query) {
+    const self = this
+    return self._findAll(mapper, query).then(function (result) {
+      let sum = 0
+      result[0].forEach(function (record) {
+        sum += utils.get(record, field) || 0
+      })
+      result[0] = sum
+      return result
+    })
+  },
+
   _updateHelper (mapper, records, props) {
     const self = this
     const idAttribute = mapper.idAttribute
     const _path = getPath(mapper)
-    if (isObject(records) && !isArray(records)) {
+    if (utils.isObject(records) && !utils.isArray(records)) {
       records = [records]
     }
     return Promise.all(records.map(function (record) {
-      deepMixIn(record, props)
+      utils.deepMixIn(record, props)
       return new Promise(function (resolve, reject) {
-        self.client.SET(`${_path}-${record[idAttribute]}`, JSON.stringify(record), function (err) {
+        self.client.set(`${_path}-${record[idAttribute]}`, JSON.stringify(record), function (err) {
           return err ? reject(err) : resolve(record)
         })
       })
@@ -308,7 +314,7 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     records || (records = [])
 
     return Promise.all(records.map(function (record) {
-      return self.GET(`${_path}-${get(record, idAttribute)}`).then(function (_record) {
+      return self.GET(`${_path}-${utils.get(record, idAttribute)}`).then(function (_record) {
         if (!_record) {
           return
         }

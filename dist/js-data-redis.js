@@ -8,19 +8,6 @@ var Adapter = _interopDefault(require('js-data-adapter'));
 var underscore = _interopDefault(require('mout/string/underscore'));
 var guid = _interopDefault(require('mout/random/guid'));
 
-var addHiddenPropsToTarget = jsData.utils.addHiddenPropsToTarget;
-var classCallCheck = jsData.utils.classCallCheck;
-var deepMixIn = jsData.utils.deepMixIn;
-var extend = jsData.utils.extend;
-var fillIn = jsData.utils.fillIn;
-var get = jsData.utils.get;
-var isArray = jsData.utils.isArray;
-var isObject = jsData.utils.isObject;
-var isUndefined = jsData.utils.isUndefined;
-var plainCopy = jsData.utils.plainCopy;
-var set = jsData.utils.set;
-
-
 function getPath(mapper) {
   if (mapper) {
     return mapper.table || underscore(mapper.name);
@@ -75,9 +62,9 @@ var DEFAULTS = {
  */
 function RedisAdapter(opts) {
   var self = this;
-  classCallCheck(self, RedisAdapter);
+  jsData.utils.classCallCheck(self, RedisAdapter);
   opts || (opts = {});
-  fillIn(opts, DEFAULTS);
+  jsData.utils.fillIn(opts, DEFAULTS);
   Adapter.call(self, opts);
 
   /**
@@ -116,9 +103,9 @@ Object.defineProperty(RedisAdapter, '__super__', {
  * properties to the RedisAdapter itself.
  * @return {Object} RedisAdapter of `RedisAdapter`.
  */
-RedisAdapter.extend = extend;
+RedisAdapter.extend = jsData.utils.extend;
 
-addHiddenPropsToTarget(RedisAdapter.prototype, {
+jsData.utils.addHiddenPropsToTarget(RedisAdapter.prototype, {
   getIds: function getIds(mapper) {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -136,25 +123,32 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     var self = this;
     return new Promise(function (resolve, reject) {
       return self.client.GET(path, function (err, value) {
-        return err ? reject(err) : resolve(isUndefined(value) ? value : JSON.parse(value));
+        return err ? reject(err) : resolve(jsData.utils.isUndefined(value) ? value : JSON.parse(value));
       });
+    });
+  },
+  _count: function _count(mapper, query) {
+    var self = this;
+    return self._findAll(mapper, query).then(function (result) {
+      result[0] = result[0].length;
+      return result;
     });
   },
   _create: function _create(mapper, props) {
     var self = this;
     var idAttribute = mapper.idAttribute;
     props || (props = {});
-    props = plainCopy(props);
+    props = jsData.utils.plainCopy(props);
 
-    var id = get(props, idAttribute);
-    if (isUndefined(id)) {
+    var id = jsData.utils.get(props, idAttribute);
+    if (jsData.utils.isUndefined(id)) {
       id = guid();
-      set(props, idAttribute, id);
+      jsData.utils.set(props, idAttribute, id);
     }
 
     return new Promise(function (resolve, reject) {
       props = JSON.stringify(props);
-      return self.client.multi().SET(getPath(mapper) + '-' + id, props).SADD(getPath(mapper), id).exec(function (err) {
+      return self.client.multi().set(getPath(mapper) + '-' + id, props).SADD(getPath(mapper), id).exec(function (err) {
         return err ? reject(err) : resolve([JSON.parse(props), {}]);
       });
     });
@@ -163,18 +157,18 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     var self = this;
     var idAttribute = mapper.idAttribute;
     props || (props = []);
-    props = plainCopy(props);
+    props = jsData.utils.plainCopy(props);
 
     var _path = getPath(mapper);
     return Promise.all(props.map(function (_props) {
       return new Promise(function (resolve, reject) {
-        var id = get(_props, idAttribute);
-        if (isUndefined(id)) {
+        var id = jsData.utils.get(_props, idAttribute);
+        if (jsData.utils.isUndefined(id)) {
           id = guid();
-          set(_props, idAttribute, id);
+          jsData.utils.set(_props, idAttribute, id);
         }
         _props = JSON.stringify(_props);
-        return self.client.multi().SET(_path + '-' + id, _props).SADD(_path, id).exec(function (err) {
+        return self.client.multi().set(_path + '-' + id, _props).SADD(_path, id).exec(function (err) {
           return err ? reject(err) : resolve(JSON.parse(_props));
         });
       });
@@ -199,7 +193,7 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
       var idAttribute = mapper.idAttribute;
       return Promise.all(records.map(function (record) {
         return new Promise(function (resolve, reject) {
-          var id = get(record, idAttribute);
+          var id = jsData.utils.get(record, idAttribute);
           return self.client.multi().DEL(_path + '-' + id).SREM(_path, id).exec(function (err) {
             return err ? reject(err) : resolve();
           });
@@ -234,17 +228,28 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
       return [_query.filter(query).run(), {}];
     });
   },
+  _sum: function _sum(mapper, field, query) {
+    var self = this;
+    return self._findAll(mapper, query).then(function (result) {
+      var sum = 0;
+      result[0].forEach(function (record) {
+        sum += jsData.utils.get(record, field) || 0;
+      });
+      result[0] = sum;
+      return result;
+    });
+  },
   _updateHelper: function _updateHelper(mapper, records, props) {
     var self = this;
     var idAttribute = mapper.idAttribute;
     var _path = getPath(mapper);
-    if (isObject(records) && !isArray(records)) {
+    if (jsData.utils.isObject(records) && !jsData.utils.isArray(records)) {
       records = [records];
     }
     return Promise.all(records.map(function (record) {
-      deepMixIn(record, props);
+      jsData.utils.deepMixIn(record, props);
       return new Promise(function (resolve, reject) {
-        self.client.SET(_path + '-' + record[idAttribute], JSON.stringify(record), function (err) {
+        self.client.set(_path + '-' + record[idAttribute], JSON.stringify(record), function (err) {
           return err ? reject(err) : resolve(record);
         });
       });
@@ -281,7 +286,7 @@ addHiddenPropsToTarget(RedisAdapter.prototype, {
     records || (records = []);
 
     return Promise.all(records.map(function (record) {
-      return self.GET(_path + '-' + get(record, idAttribute)).then(function (_record) {
+      return self.GET(_path + '-' + jsData.utils.get(record, idAttribute)).then(function (_record) {
         if (!_record) {
           return;
         }
