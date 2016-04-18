@@ -104,6 +104,22 @@ Object.defineProperty(RedisAdapter, '__super__', {
  */
 RedisAdapter.extend = utils.extend
 
+/**
+ * Details of the current version of the `js-data-redis` module.
+ *
+ * @name RedisAdapter.version
+ * @type {Object}
+ * @property {string} full The full semver value.
+ * @property {number} major The major version number.
+ * @property {number} minor The minor version number.
+ * @property {number} patch The patch version number.
+ * @property {(string|boolean)} alpha The alpha version value, otherwise `false`
+ * if the current version is not alpha.
+ * @property {(string|boolean)} beta The beta version value, otherwise `false`
+ * if the current version is not beta.
+ */
+RedisAdapter.version = '<%= version %>'
+
 utils.addHiddenPropsToTarget(RedisAdapter.prototype, {
   getIds (mapper) {
     const self = this

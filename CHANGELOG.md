@@ -1,3 +1,10 @@
+##### 3.0.0-beta.1 - 17 April 2016
+
+Official v3 beta release
+
+###### Other
+- Upgraded dependencies
+
 ##### 3.0.0-alpha.3 - 18 March 2016
 
 ###### Backwards compatible API changes
