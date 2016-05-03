@@ -1,3 +1,34 @@
+##### 3.0.0-beta.2 - 03 May 2016
+
+###### Breaking changes
+- How you must now import in ES2015:
+
+    ```js
+    import RedisAdapter from 'js-data-redis'
+    const adapter = new RedisAdapter()
+    ```
+    or
+    ```js
+    import {RedisAdapter, version} from 'js-data-redis'
+    console.log(version)
+    const adapter = new RedisAdapter()
+    ```
+
+- How you must now import in ES5:
+
+    ```js
+    var JSDataRedis = require('js-data-redis')
+    var RedisAdapter = JSDataRedis.RedisAdapter
+    var adapter = new RedisAdapter()
+    ```
+
+- Moved some `dist` files to `release` to reduce noise
+
+###### Other
+- Upgraded dependencies
+- Improved JSDoc comments
+- Now using js-data JSDoc template
+
 ##### 3.0.0-beta.1 - 17 April 2016
 
 Official v3 beta release

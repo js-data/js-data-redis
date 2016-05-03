@@ -3,7 +3,9 @@ machine:
     version: 4.1.0
   services:
     - redis
-
+dependencies:
+  pre:
+    - npm i js-data@^3.0.0-beta.3 redis
 test:
   override:
     - npm run ci

@@ -3,7 +3,7 @@ import {
   Query,
   utils
 } from 'js-data'
-import Adapter from 'js-data-adapter'
+import {Adapter} from 'js-data-adapter'
 import underscore from 'mout/string/underscore'
 import guid from 'mout/random/guid'
 
@@ -55,11 +55,13 @@ const DEFAULTS = {
  *
  * @class RedisAdapter
  * @extends Adapter
- * @param {Object} [opts] Configuration opts.
- * @param {boolean} [opts.debug=false] Whether to log debugging information.
- * @param {boolean} [opts.raw=false] Whether to return a more detailed response object.
+ * @param {Object} [opts] Configuration options.
+ * @param {boolean} [opts.debug=false] See {@link Adapter#debug}.
+ * @param {boolean} [opts.host="127.0.0.1"] See {@link RedisAdapter#host}.
+ * @param {boolean} [opts.port=6379] See {@link RedisAdapter#port}.
+ * @param {boolean} [opts.raw=false] See {@link Adapter#raw}.
  */
-function RedisAdapter (opts) {
+export function RedisAdapter (opts) {
   const self = this
   utils.classCallCheck(self, RedisAdapter)
   opts || (opts = {})
@@ -94,31 +96,26 @@ Object.defineProperty(RedisAdapter, '__super__', {
 /**
  * Alternative to ES6 class syntax for extending `RedisAdapter`.
  *
- * @name RedisAdapter.extend
- * @method
+ * @example <caption>Using the ES2015 class syntax.</caption>
+ * class MyRedisAdapter extends RedisAdapter {...}
+ * const adapter = new MyRedisAdapter()
+ *
+ * @example <caption>Using {@link RedisAdapter.extend}.</caption>
+ * var instanceProps = {...}
+ * var classProps = {...}
+ *
+ * var MyRedisAdapter = RedisAdapter.extend(instanceProps, classProps)
+ * var adapter = new MyRedisAdapter()
+ *
+ * @method RedisAdapter.extend
+ * @static
  * @param {Object} [instanceProps] Properties that will be added to the
- * prototype of the RedisAdapter.
+ * prototype of the subclass.
  * @param {Object} [classProps] Properties that will be added as static
- * properties to the RedisAdapter itself.
- * @return {Object} RedisAdapter of `RedisAdapter`.
+ * properties to the subclass itself.
+ * @return {Constructor} Subclass of `RedisAdapter`.
  */
 RedisAdapter.extend = utils.extend
-
-/**
- * Details of the current version of the `js-data-redis` module.
- *
- * @name RedisAdapter.version
- * @type {Object}
- * @property {string} full The full semver value.
- * @property {number} major The major version number.
- * @property {number} minor The minor version number.
- * @property {number} patch The patch version number.
- * @property {(string|boolean)} alpha The alpha version value, otherwise `false`
- * if the current version is not alpha.
- * @property {(string|boolean)} beta The beta version value, otherwise `false`
- * if the current version is not beta.
- */
-RedisAdapter.version = '<%= version %>'
 
 utils.addHiddenPropsToTarget(RedisAdapter.prototype, {
   getIds (mapper) {
@@ -346,4 +343,53 @@ utils.addHiddenPropsToTarget(RedisAdapter.prototype, {
   }
 })
 
-module.exports = RedisAdapter
+/**
+ * Details of the current version of the `js-data-redis` module.
+ *
+ * @example
+ * import {version} from 'js-data-redis'
+ * console.log(version.full)
+ *
+ * @name module:js-data-redis.version
+ * @type {Object}
+ * @property {string} version.full The full semver value.
+ * @property {number} version.major The major version number.
+ * @property {number} version.minor The minor version number.
+ * @property {number} version.patch The patch version number.
+ * @property {(string|boolean)} version.alpha The alpha version value,
+ * otherwise `false` if the current version is not alpha.
+ * @property {(string|boolean)} version.beta The beta version value,
+ * otherwise `false` if the current version is not beta.
+ */
+export const version = '<%= version %>'
+
+/**
+ * {@link RedisAdapter} class.
+ *
+ * @example
+ * import {RedisAdapter} from 'js-data-redis'
+ * const adapter = new RedisAdapter()
+ *
+ * @name module:js-data-redis.RedisAdapter
+ * @see RedisAdapter
+ * @type {Constructor}
+ */
+
+/**
+ * Registered as `js-data-redis` in NPM.
+ *
+ * @example <caption>Install from NPM</caption>
+ * npm i --save js-data-redis@beta js-data@beta redis
+ *
+ * @example <caption>Load via CommonJS</caption>
+ * var RedisAdapter = require('js-data-redis').RedisAdapter
+ * var adapter = new RedisAdapter()
+ *
+ * @example <caption>Load via ES2015 Modules</caption>
+ * import {RedisAdapter} from 'js-data-redis'
+ * const adapter = new RedisAdapter()
+ *
+ * @module js-data-redis
+ */
+
+export default RedisAdapter

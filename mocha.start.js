@@ -6,15 +6,15 @@ require('babel-polyfill')
 
 var JSData = require('js-data')
 var JSDataAdapterTests = require('js-data-adapter-tests')
-var RedisAdapter = require('./')
+var JSDataRedis = require('./')
 
-global.assert = JSDataAdapterTests.assert
+var assert = global.assert = JSDataAdapterTests.assert
 global.sinon = JSDataAdapterTests.sinon
 
 JSDataAdapterTests.init({
   debug: false,
   JSData: JSData,
-  Adapter: RedisAdapter,
+  Adapter: JSDataRedis.RedisAdapter,
   adapterConfig: {
     debug: false
   },
@@ -22,4 +22,14 @@ JSDataAdapterTests.init({
     'findAllOpNotFound',
     'filterOnRelations'
   ]
+})
+
+describe('exports', function () {
+  it('should have correct exports', function () {
+    assert(JSDataRedis.default)
+    assert(JSDataRedis.RedisAdapter)
+    assert(JSDataRedis.RedisAdapter === JSDataRedis.default)
+    assert(JSDataRedis.version)
+    assert(JSDataRedis.version.full)
+  })
 })
