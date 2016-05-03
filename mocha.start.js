@@ -1,45 +1,35 @@
 /*global assert:true */
-'use strict';
+'use strict'
 
-var JSData = require('js-data');
-var TestRunner = require('js-data-adapter-tests');
+// prepare environment for js-data-adapter-tests
+require('babel-polyfill')
 
-var mocha = require('mocha');
-var coMocha = require('co-mocha');
+var JSData = require('js-data')
+var JSDataAdapterTests = require('js-data-adapter-tests')
+var JSDataRedis = require('./')
 
-coMocha(mocha);
-JSData.DSUtils.Promise = require('bluebird');
+var assert = global.assert = JSDataAdapterTests.assert
+global.sinon = JSDataAdapterTests.sinon
 
-var DSRedisAdapter = require('./');
+JSDataAdapterTests.init({
+  debug: false,
+  JSData: JSData,
+  Adapter: JSDataRedis.RedisAdapter,
+  adapterConfig: {
+    debug: false
+  },
+  xfeatures: [
+    'findAllOpNotFound',
+    'filterOnRelations'
+  ]
+})
 
-var globals = module.exports = {
-  TestRunner: TestRunner,
-  assert: TestRunner.assert
-};
-
-var test = new mocha();
-
-var testGlobals = [];
-
-for (var key in globals) {
-  global[key] = globals[key];
-  testGlobals.push(globals[key]);
-}
-test.globals(testGlobals);
-
-TestRunner.init({
-  DS: JSData.DS,
-  Adapter: DSRedisAdapter,
-  features: []
-});
-
-beforeEach(function () {
-  globals.DSUtils = global.DSUtils = this.$$DSUtils;
-  globals.DSErrors = global.DSErrors = this.$$DSErrors;
-  globals.adapter = global.adapter = this.$$adapter;
-  globals.store = global.store = this.$$store;
-  globals.User = global.User = this.$$User;
-  globals.Profile = global.Profile = this.$$Profile;
-  globals.Post = global.Post = this.$$Post;
-  globals.Comment = global.Comment = this.$$Comment;
-});
+describe('exports', function () {
+  it('should have correct exports', function () {
+    assert(JSDataRedis.default)
+    assert(JSDataRedis.RedisAdapter)
+    assert(JSDataRedis.RedisAdapter === JSDataRedis.default)
+    assert(JSDataRedis.version)
+    assert(JSDataRedis.version.full)
+  })
+})

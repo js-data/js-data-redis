@@ -1,312 +1,395 @@
-let JSData = require('js-data')
-let redis = require('redis')
-let map = require('mout/array/map')
-let unique = require('mout/array/unique')
-let underscore = require('mout/string/underscore')
-let guid = require('mout/random/guid')
-let { DSUtils } = JSData
-let emptyStore = new JSData.DS()
-let filter = emptyStore.defaults.defaultFilter
+import redis from 'redis'
+import {
+  Query,
+  utils
+} from 'js-data'
+import {Adapter} from 'js-data-adapter'
+import underscore from 'mout/string/underscore'
+import guid from 'mout/random/guid'
 
-function getPath (resourceConfig) {
-  if (resourceConfig) {
-    return resourceConfig.table || underscore(resourceConfig.name)
+function getPath (mapper) {
+  if (mapper) {
+    return mapper.table || underscore(mapper.name)
   }
 }
 
-class Defaults {
+const DEFAULTS = {
+  /**
+   * Redis host.
+   *
+   * @name RedisAdapter#host
+   * @type {string}
+   * @default "127.0.0.1"
+   */
+  host: '127.0.0.1',
 
+  /**
+   * Redis port.
+   *
+   * @name RedisAdapter#port
+   * @type {number}
+   * @default 6379
+   */
+  port: 6379
 }
 
-class DSRedisAdapter {
-  constructor (options) {
-    options = options || {}
+/**
+ * RedisAdapter class.
+ *
+ * @example
+ * // Use Container instead of DataStore on the server
+ * import {Container} from 'js-data'
+ * import RedisAdapter from 'js-data-redis'
+ *
+ * // Create a store to hold your Mappers
+ * const store = new Container()
+ *
+ * // Create an instance of RedisAdapter with default settings
+ * const adapter = new RedisAdapter()
+ *
+ * // Mappers in "store" will use the Redis adapter by default
+ * store.registerAdapter('redis', adapter, { default: true })
+ *
+ * // Create a Mapper that maps to a "user" table
+ * store.defineMapper('user')
+ *
+ * @class RedisAdapter
+ * @extends Adapter
+ * @param {Object} [opts] Configuration options.
+ * @param {boolean} [opts.debug=false] See {@link Adapter#debug}.
+ * @param {boolean} [opts.host="127.0.0.1"] See {@link RedisAdapter#host}.
+ * @param {boolean} [opts.port=6379] See {@link RedisAdapter#port}.
+ * @param {boolean} [opts.raw=false] See {@link Adapter#raw}.
+ */
+export function RedisAdapter (opts) {
+  const self = this
+  utils.classCallCheck(self, RedisAdapter)
+  opts || (opts = {})
+  utils.fillIn(opts, DEFAULTS)
+  Adapter.call(self, opts)
 
-    let host = options.hasOwnProperty('host') ? options.host : '127.0.0.1'
-    delete options.host
-    let port = options.hasOwnProperty('port') ? options.port : 6379
-    delete options.port
+  /**
+   * The Redis client used by this adapter. Use this directly when you need to
+   * write custom queries.
+   *
+   * @name RedisAdapter#client
+   * @type {Object}
+   */
+  self.client = redis.createClient(opts.port, opts.host, opts)
+}
 
-    this.defaults = new Defaults()
-    DSUtils.deepMixIn(this.defaults, options)
-    this.client = redis.createClient(port, host, this.defaults)
+// Setup prototype inheritance from Adapter
+RedisAdapter.prototype = Object.create(Adapter.prototype, {
+  constructor: {
+    value: RedisAdapter,
+    enumerable: false,
+    writable: true,
+    configurable: true
   }
+})
 
-  getIds (resourceConfig) {
-    return new DSUtils.Promise((resolve, reject) => {
-      return this.client.SMEMBERS(getPath(resourceConfig), (err, ids) => err ? reject(err) : resolve(ids))
+Object.defineProperty(RedisAdapter, '__super__', {
+  configurable: true,
+  value: Adapter
+})
+
+/**
+ * Alternative to ES6 class syntax for extending `RedisAdapter`.
+ *
+ * @example <caption>Using the ES2015 class syntax.</caption>
+ * class MyRedisAdapter extends RedisAdapter {...}
+ * const adapter = new MyRedisAdapter()
+ *
+ * @example <caption>Using {@link RedisAdapter.extend}.</caption>
+ * var instanceProps = {...}
+ * var classProps = {...}
+ *
+ * var MyRedisAdapter = RedisAdapter.extend(instanceProps, classProps)
+ * var adapter = new MyRedisAdapter()
+ *
+ * @method RedisAdapter.extend
+ * @static
+ * @param {Object} [instanceProps] Properties that will be added to the
+ * prototype of the subclass.
+ * @param {Object} [classProps] Properties that will be added as static
+ * properties to the subclass itself.
+ * @return {Constructor} Subclass of `RedisAdapter`.
+ */
+RedisAdapter.extend = utils.extend
+
+utils.addHiddenPropsToTarget(RedisAdapter.prototype, {
+  getIds (mapper) {
+    const self = this
+    return new Promise(function (resolve, reject) {
+      return self.client.SMEMBERS(getPath(mapper), function (err, ids) {
+        if (err) {
+          return reject(err)
+        }
+        return resolve(ids.filter(function (id) {
+          return id !== 'undefined'
+        }))
+      })
     })
-  }
+  },
 
   GET (path) {
-    return new DSUtils.Promise((resolve, reject) => {
-      return this.client.GET(path, (err, value) => err ? reject(err) : resolve(JSON.parse(value)))
-    })
-  }
-
-  find (resourceConfig, id, options) {
-    let instance
-    options = options || {}
-    options.with = options.with || []
-    return new DSUtils.Promise((resolve, reject) => {
-      return this.client.GET(`${getPath(resourceConfig)}-${id}`, (err, item) => {
-        if (err) {
-          reject(err)
-        } else if (!item) {
-          reject(new Error('Not Found!'))
-        } else {
-          resolve(JSON.parse(item))
-        }
+    const self = this
+    return new Promise(function (resolve, reject) {
+      return self.client.GET(path, function (err, value) {
+        return err ? reject(err) : resolve(utils.isUndefined(value) ? value : JSON.parse(value))
       })
-    }).then(_instance => {
-      instance = _instance
-      let tasks = []
-
-      DSUtils.forEach(resourceConfig.relationList, def => {
-        let relationName = def.relation
-        let relationDef = resourceConfig.getResource(relationName)
-        let containedName = null
-        if (DSUtils.contains(options.with, relationName)) {
-          containedName = relationName
-        } else if (DSUtils.contains(options.with, def.localField)) {
-          containedName = def.localField
-        }
-        if (containedName) {
-          let __options = DSUtils.deepMixIn({}, options.orig ? options.orig() : options)
-          __options.with = options.with.slice()
-          __options = DSUtils._(relationDef, __options)
-          DSUtils.remove(__options.with, containedName)
-          DSUtils.forEach(__options.with, (relation, i) => {
-            if (relation && relation.indexOf(containedName) === 0 && relation.length >= containedName.length && relation[containedName.length] === '.') {
-              __options.with[i] = relation.substr(containedName.length + 1)
-            } else {
-              __options.with[i] = ''
-            }
-          })
-
-          let task
-
-          if ((def.type === 'hasOne' || def.type === 'hasMany') && def.foreignKey) {
-            task = this.findAll(resourceConfig.getResource(relationName), {
-              where: {
-                [def.foreignKey]: {
-                  '==': instance[resourceConfig.idAttribute]
-                }
-              }
-            }, __options).then(relatedItems => {
-              if (def.type === 'hasOne' && relatedItems.length) {
-                DSUtils.set(instance, def.localField, relatedItems[0])
-              } else {
-                DSUtils.set(instance, def.localField, relatedItems)
-              }
-              return relatedItems
-            })
-          } else if (def.type === 'hasMany' && def.localKeys) {
-            let localKeys = []
-            let itemKeys = instance[def.localKeys] || []
-            itemKeys = Array.isArray(itemKeys) ? itemKeys : DSUtils.keys(itemKeys)
-            localKeys = localKeys.concat(itemKeys || [])
-            task = this.findAll(resourceConfig.getResource(relationName), {
-              where: {
-                [relationDef.idAttribute]: {
-                  'in': DSUtils.filter(unique(localKeys), x => x)
-                }
-              }
-            }, __options).then(relatedItems => {
-              DSUtils.set(instance, def.localField, relatedItems)
-              return relatedItems
-            })
-          } else if (def.type === 'belongsTo' || (def.type === 'hasOne' && def.localKey)) {
-            task = this.find(resourceConfig.getResource(relationName), DSUtils.get(instance, def.localKey), __options).then(relatedItem => {
-              DSUtils.set(instance, def.localField, relatedItem)
-              return relatedItem
-            })
-          }
-
-          if (task) {
-            tasks.push(task)
-          }
-        }
-      })
-
-      return DSUtils.Promise.all(tasks)
     })
-      .then(() => instance)
-  }
+  },
 
-  findAll (resourceConfig, params, options) {
-    let items = null
-    options = options || {}
-    options.with = options.with || []
-    return this.getIds(resourceConfig).then(ids => {
-      let tasks = []
-      let path = getPath(resourceConfig)
-      DSUtils.forEach(ids, id => tasks.push(this.GET(`${path}-${id}`)))
-      return DSUtils.Promise.all(tasks)
+  _count (mapper, query) {
+    const self = this
+    return self._findAll(mapper, query).then(function (result) {
+      result[0] = result[0].length
+      return result
     })
-      .then(items => filter.call(emptyStore, items, resourceConfig.name, params, {allowSimpleWhere: true}))
-      .then(_items => {
-        items = _items
-        let tasks = []
-        DSUtils.forEach(resourceConfig.relationList, def => {
-          let relationName = def.relation
-          let relationDef = resourceConfig.getResource(relationName)
-          let containedName = null
-          if (DSUtils.contains(options.with, relationName)) {
-            containedName = relationName
-          } else if (DSUtils.contains(options.with, def.localField)) {
-            containedName = def.localField
-          }
-          if (containedName) {
-            let __options = DSUtils.deepMixIn({}, options.orig ? options.orig() : options)
-            __options.with = options.with.slice()
-            __options = DSUtils._(relationDef, __options)
-            DSUtils.remove(__options.with, containedName)
-            DSUtils.forEach(__options.with, (relation, i) => {
-              if (relation && relation.indexOf(containedName) === 0 && relation.length >= containedName.length && relation[containedName.length] === '.') {
-                __options.with[i] = relation.substr(containedName.length + 1)
-              } else {
-                __options.with[i] = ''
-              }
-            })
+  },
 
-            let task
+  _create (mapper, props) {
+    const self = this
+    const idAttribute = mapper.idAttribute
+    props || (props = {})
+    props = utils.plainCopy(props)
 
-            if ((def.type === 'hasOne' || def.type === 'hasMany') && def.foreignKey) {
-              task = this.findAll(resourceConfig.getResource(relationName), {
-                where: {
-                  [def.foreignKey]: {
-                    'in': DSUtils.filter(map(items, item => DSUtils.get(item, resourceConfig.idAttribute)), x => x)
-                  }
-                }
-              }, __options).then(relatedItems => {
-                DSUtils.forEach(items, item => {
-                  let attached = []
-                  DSUtils.forEach(relatedItems, relatedItem => {
-                    if (DSUtils.get(relatedItem, def.foreignKey) === item[resourceConfig.idAttribute]) {
-                      attached.push(relatedItem)
-                    }
-                  })
-                  if (def.type === 'hasOne' && attached.length) {
-                    DSUtils.set(item, def.localField, attached[0])
-                  } else {
-                    DSUtils.set(item, def.localField, attached)
-                  }
-                })
-                return relatedItems
-              })
-            } else if (def.type === 'hasMany' && def.localKeys) {
-              let localKeys = []
-              DSUtils.forEach(items, item => {
-                let itemKeys = item[def.localKeys] || []
-                itemKeys = Array.isArray(itemKeys) ? itemKeys : DSUtils.keys(itemKeys)
-                localKeys = localKeys.concat(itemKeys || [])
-              })
-              task = this.findAll(resourceConfig.getResource(relationName), {
-                where: {
-                  [relationDef.idAttribute]: {
-                    'in': DSUtils.filter(unique(localKeys), x => x)
-                  }
-                }
-              }, __options).then(relatedItems => {
-                DSUtils.forEach(items, item => {
-                  let attached = []
-                  let itemKeys = item[def.localKeys] || []
-                  itemKeys = Array.isArray(itemKeys) ? itemKeys : DSUtils.keys(itemKeys)
-                  DSUtils.forEach(relatedItems, relatedItem => {
-                    if (itemKeys && DSUtils.contains(itemKeys, relatedItem[relationDef.idAttribute])) {
-                      attached.push(relatedItem)
-                    }
-                  })
-                  DSUtils.set(item, def.localField, attached)
-                })
-                return relatedItems
-              })
-            } else if (def.type === 'belongsTo' || (def.type === 'hasOne' && def.localKey)) {
-              task = this.findAll(resourceConfig.getResource(relationName), {
-                where: {
-                  [relationDef.idAttribute]: {
-                    'in': DSUtils.filter(map(items, item => DSUtils.get(item, def.localKey)), x => x)
-                  }
-                }
-              }, __options).then(relatedItems => {
-                DSUtils.forEach(items, item => {
-                  DSUtils.forEach(relatedItems, relatedItem => {
-                    if (relatedItem[relationDef.idAttribute] === item[def.localKey]) {
-                      DSUtils.set(item, def.localField, relatedItem)
-                    }
-                  })
-                })
-                return relatedItems
-              })
-            }
+    let id = utils.get(props, idAttribute)
+    if (utils.isUndefined(id)) {
+      id = guid()
+      utils.set(props, idAttribute, id)
+    }
 
-            if (task) {
-              tasks.push(task)
-            }
-          }
+    return new Promise(function (resolve, reject) {
+      props = JSON.stringify(props)
+      return self.client
+        .multi()
+        .set(`${getPath(mapper)}-${id}`, props)
+        .SADD(getPath(mapper), id)
+        .exec(function (err) {
+          return err ? reject(err) : resolve([JSON.parse(props), {}])
         })
-        return DSUtils.Promise.all(tasks)
-      })
-      .then(() => items)
-  }
-
-  create (resourceConfig, attrs) {
-    return new DSUtils.Promise((resolve, reject) => {
-      attrs = DSUtils.removeCircular(DSUtils.omit(attrs, resourceConfig.relationFields || []))
-      attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || guid()
-      return this.client
-        .multi()
-        .SET(`${getPath(resourceConfig)}-${attrs[resourceConfig.idAttribute]}`, JSON.stringify(attrs))
-        .SADD(getPath(resourceConfig), attrs[resourceConfig.idAttribute])
-        .exec(err => err ? reject(err) : resolve(attrs))
     })
-  }
+  },
 
-  update (resourceConfig, id, attrs) {
-    return new DSUtils.Promise((resolve, reject) => {
-      attrs = DSUtils.removeCircular(DSUtils.omit(attrs, resourceConfig.relationFields || []))
-      let path = `${getPath(resourceConfig)}-${id}`
-      return this.client.GET(path, (err, value) => {
-        if (err) {
-          reject(err)
-        } else if (!value) {
-          reject(new Error('Not Found!'))
-        } else {
-          value = JSON.parse(value)
-          DSUtils.deepMixIn(value, attrs)
-          this.client.SET(path, JSON.stringify(value), err => err ? reject(err) : resolve(value))
+  _createMany (mapper, props) {
+    const self = this
+    const idAttribute = mapper.idAttribute
+    props || (props = [])
+    props = utils.plainCopy(props)
+
+    const _path = getPath(mapper)
+    return Promise.all(props.map(function (_props) {
+      return new Promise(function (resolve, reject) {
+        let id = utils.get(_props, idAttribute)
+        if (utils.isUndefined(id)) {
+          id = guid()
+          utils.set(_props, idAttribute, id)
+        }
+        _props = JSON.stringify(_props)
+        return self.client
+          .multi()
+          .set(`${_path}-${id}`, _props)
+          .SADD(_path, id)
+          .exec(function (err) {
+            return err ? reject(err) : resolve(JSON.parse(_props))
+          })
+      })
+    })).then(function (records) {
+      return [records, {}]
+    })
+  },
+
+  _destroy (mapper, id) {
+    const self = this
+
+    return new Promise(function (resolve, reject) {
+      return self.client
+        .multi()
+        .DEL(`${getPath(mapper)}-${id}`)
+        .SREM(getPath(mapper), id)
+        .exec(function (err) {
+          return err ? reject(err) : resolve([undefined, {}])
+        })
+    })
+  },
+
+  _destroyAll (mapper, query) {
+    const self = this
+
+    return self.findAll(mapper, query, { raw: false }).then(function (records) {
+      const _path = getPath(mapper)
+      const idAttribute = mapper.idAttribute
+      return Promise.all(records.map(function (record) {
+        return new Promise(function (resolve, reject) {
+          const id = utils.get(record, idAttribute)
+          return self.client
+            .multi()
+            .DEL(`${_path}-${id}`)
+            .SREM(_path, id)
+            .exec(function (err) {
+              return err ? reject(err) : resolve()
+            })
+        })
+      }))
+    }).then(function () {
+      return [undefined, {}]
+    })
+  },
+
+  _find (mapper, id) {
+    return this.GET(`${getPath(mapper)}-${id}`).then(function (record) {
+      return [record, {}]
+    })
+  },
+
+  _findAll (mapper, query) {
+    const self = this
+    query || (query = {})
+
+    return self.getIds(mapper).then(function (ids) {
+      const path = getPath(mapper)
+      return Promise.all(ids.map(function (id) {
+        return self.GET(`${path}-${id}`)
+      }))
+    }).then(function (_records) {
+      const _query = new Query({
+        index: {
+          getAll () {
+            return _records
+          }
         }
       })
+      return [_query.filter(query).run(), {}]
+    })
+  },
+
+  _sum (mapper, field, query) {
+    const self = this
+    return self._findAll(mapper, query).then(function (result) {
+      let sum = 0
+      result[0].forEach(function (record) {
+        sum += utils.get(record, field) || 0
+      })
+      result[0] = sum
+      return result
+    })
+  },
+
+  _updateHelper (mapper, records, props) {
+    const self = this
+    const idAttribute = mapper.idAttribute
+    const _path = getPath(mapper)
+    if (utils.isObject(records) && !utils.isArray(records)) {
+      records = [records]
+    }
+    return Promise.all(records.map(function (record) {
+      utils.deepMixIn(record, props)
+      return new Promise(function (resolve, reject) {
+        self.client.set(`${_path}-${record[idAttribute]}`, JSON.stringify(record), function (err) {
+          return err ? reject(err) : resolve(record)
+        })
+      })
+    }))
+  },
+
+  _update (mapper, id, props) {
+    const self = this
+    props || (props = {})
+
+    return self.GET(`${getPath(mapper)}-${id}`).then(function (record) {
+      if (!record) {
+        throw new Error('Not Found')
+      }
+      return self._updateHelper(mapper, record, props)
+    }).then(function (records) {
+      return [records[0], {}]
+    })
+  },
+
+  _updateAll (mapper, props, query) {
+    const self = this
+    props || (props = {})
+    query || (query = {})
+
+    return self.findAll(mapper, query, { raw: false }).then(function (records) {
+      return self._updateHelper(mapper, records, props)
+    }).then(function (records) {
+      return [records, {}]
+    })
+  },
+
+  _updateMany (mapper, records) {
+    const self = this
+    const idAttribute = mapper.idAttribute
+    const _path = getPath(mapper)
+    records || (records = [])
+
+    return Promise.all(records.map(function (record) {
+      return self.GET(`${_path}-${utils.get(record, idAttribute)}`).then(function (_record) {
+        if (!_record) {
+          return
+        }
+        return self._updateHelper(mapper, _record, record).then(function (records) {
+          return records[0]
+        })
+      })
+    })).then(function (records) {
+      return [records.filter(function (record) {
+        return record
+      }), {}]
     })
   }
+})
 
-  updateAll (resourceConfig, attrs, params) {
-    return this.findAll(resourceConfig, params).then(items => {
-      let tasks = []
-      DSUtils.forEach(items, item => tasks.push(this.update(resourceConfig, item[resourceConfig.idAttribute], attrs)))
-      return DSUtils.Promise.all(tasks)
-    })
-  }
+/**
+ * Details of the current version of the `js-data-redis` module.
+ *
+ * @example
+ * import {version} from 'js-data-redis'
+ * console.log(version.full)
+ *
+ * @name module:js-data-redis.version
+ * @type {Object}
+ * @property {string} version.full The full semver value.
+ * @property {number} version.major The major version number.
+ * @property {number} version.minor The minor version number.
+ * @property {number} version.patch The patch version number.
+ * @property {(string|boolean)} version.alpha The alpha version value,
+ * otherwise `false` if the current version is not alpha.
+ * @property {(string|boolean)} version.beta The beta version value,
+ * otherwise `false` if the current version is not beta.
+ */
+export const version = '<%= version %>'
 
-  destroy (resourceConfig, id) {
-    return new DSUtils.Promise((resolve, reject) => {
-      let path = getPath(resourceConfig)
-      return this.client
-        .multi()
-        .DEL(`${path}-${id}`)
-        .SREM(path, id)
-        .exec(err => err ? reject(err) : resolve())
-    })
-  }
+/**
+ * {@link RedisAdapter} class.
+ *
+ * @example
+ * import {RedisAdapter} from 'js-data-redis'
+ * const adapter = new RedisAdapter()
+ *
+ * @name module:js-data-redis.RedisAdapter
+ * @see RedisAdapter
+ * @type {Constructor}
+ */
 
-  destroyAll (resourceConfig, params) {
-    return this.findAll(resourceConfig, params).then(items => {
-      let tasks = []
-      DSUtils.forEach(items, item => tasks.push(this.destroy(resourceConfig, item[resourceConfig.idAttribute])))
-      return DSUtils.Promise.all(tasks)
-    })
-  }
-}
+/**
+ * Registered as `js-data-redis` in NPM.
+ *
+ * @example <caption>Install from NPM</caption>
+ * npm i --save js-data-redis@beta js-data@beta redis
+ *
+ * @example <caption>Load via CommonJS</caption>
+ * var RedisAdapter = require('js-data-redis').RedisAdapter
+ * var adapter = new RedisAdapter()
+ *
+ * @example <caption>Load via ES2015 Modules</caption>
+ * import {RedisAdapter} from 'js-data-redis'
+ * const adapter = new RedisAdapter()
+ *
+ * @module js-data-redis
+ */
 
-module.exports = DSRedisAdapter
+export default RedisAdapter

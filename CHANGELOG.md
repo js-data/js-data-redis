@@ -1,3 +1,65 @@
+##### 3.0.0-beta.2 - 03 May 2016
+
+###### Breaking changes
+- How you must now import in ES2015:
+
+    ```js
+    import RedisAdapter from 'js-data-redis'
+    const adapter = new RedisAdapter()
+    ```
+    or
+    ```js
+    import {RedisAdapter, version} from 'js-data-redis'
+    console.log(version)
+    const adapter = new RedisAdapter()
+    ```
+
+- How you must now import in ES5:
+
+    ```js
+    var JSDataRedis = require('js-data-redis')
+    var RedisAdapter = JSDataRedis.RedisAdapter
+    var adapter = new RedisAdapter()
+    ```
+
+- Moved some `dist` files to `release` to reduce noise
+
+###### Other
+- Upgraded dependencies
+- Improved JSDoc comments
+- Now using js-data JSDoc template
+
+##### 3.0.0-beta.1 - 17 April 2016
+
+Official v3 beta release
+
+###### Other
+- Upgraded dependencies
+
+##### 3.0.0-alpha.3 - 18 March 2016
+
+###### Backwards compatible API changes
+- Added count and sum methods
+
+##### 3.0.0-alpha.2 - 10 March 2016
+
+###### Other
+- Moved more common adapter functionality into js-data-adapter
+
+##### 3.0.0-alpha.1 - 09 March 2016
+
+###### Breaking API changes
+- Now depends on js-data 3.x
+- Now longer uses internal `defaults` property, settings are on the adapter instance itself
+
+###### Backwards compatible API changes
+- Added createMany and updateMany methods
+- Added lifecycle hooks for all methods
+
+###### Other
+- Now using js-data-adapter
+- Now using js-data-repo-tools
+
 ##### 2.3.0 - 11 November 2015
 
 ###### Other
